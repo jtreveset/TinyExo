@@ -30,6 +30,10 @@ public class PlayerActivity extends AppCompatActivity {
     private Button buttonPause;
     private Button buttonSelectQuality;
 
+    // We use this flag to un-pause playback in onResume
+    // only if we paused in onPause
+    private boolean wasPlaying = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,17 +89,21 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        preparePlayer(true);
-        player.play();
+        preparePlayer();
+        if (wasPlaying) {
+            player.play();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        // Save playing state
+        wasPlaying = player.isPlaying();
         player.pause();
     }
 
-    private void preparePlayer(boolean playWhenReady) {
+    private void preparePlayer() {
         if (player == null) {
             player = new TinyExoPlayer(this);
             player.setPlayerLayout(tinyExoplayerLayout);
@@ -105,6 +113,5 @@ public class PlayerActivity extends AppCompatActivity {
         String url = i.getStringExtra(EXTRA_RESOURCE_URL);
 
         player.load(url);
-        player.setPlayWhenReady(playWhenReady);
     }
 }

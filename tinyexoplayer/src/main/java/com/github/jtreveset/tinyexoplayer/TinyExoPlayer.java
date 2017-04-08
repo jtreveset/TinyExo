@@ -301,6 +301,14 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     }
 
     /**
+     * Returns whether the player is currently playing or not
+     * @return whether the player is currently playing or not
+     */
+    public boolean isPlaying() {
+        return getPlayerControl().isPlaying();
+    }
+
+    /**
      * Returns a List of {@link VideoQuality}s available for this video
      * @return list with available video quality levels
      */
