@@ -21,6 +21,8 @@ import android.media.MediaCodec.CryptoException;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.View;
 
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DummyTrackRenderer;
@@ -192,6 +194,7 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     private InfoListener infoListener;
 
     private Context context;
+    private TinyExoPlayerLayout layout;
 
     public TinyExoPlayer(Context context) {
         this.context = context;
@@ -210,11 +213,71 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     /*
      * Tiny Exo methods
      */
+
+    /**
+     * Loads the resource by creating the corresponding RendererBuilder.
+     *
+     * It only supports DASH streams
+     * @param resource the resource to load
+     */
     public void load(String resource) {
         // As we only support DASH streams, build that renderer
         String userAgent = Utils.buildUserAgent();
         rendererBuilder = new DashRendererBuilder(context, userAgent, resource, null);
         prepare();
+    }
+
+    /**
+     * Bind this TinyExoPlayer to the given View
+     * @param tinyExoplayerLayout view that this player will use to render the video on
+     */
+    public void setPlayerLayout(TinyExoPlayerLayout tinyExoplayerLayout) {
+        this.layout = tinyExoplayerLayout;
+        SurfaceHolder holder = layout.getSurfaceView().getHolder();
+        if (holder.isCreating()) {
+            holder.addCallback(new SurfaceHolder.Callback() {
+                @Override
+                public void surfaceCreated(SurfaceHolder holder) {
+                    setSurface(holder.getSurface());
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder holder) {
+                    release();
+                }
+            });
+        } else {
+            setSurface(holder.getSurface());
+        }
+
+        // Self listener
+        addListener(new Listener() {
+            @Override
+            public void onStateChanged(boolean playWhenReady, int playbackState) {
+            }
+
+            @Override
+            public void onError(Exception e) {
+            }
+
+            @Override
+            public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+                float ratio;
+                if (height == 0) {
+                    ratio = 1;
+                } else {
+                    ratio = (width * pixelWidthHeightRatio) / height;
+                }
+                layout.getAspectRatioFrameLayout().setAspectRatio(ratio);
+                layout.getShutter().setVisibility(View.GONE);
+            }
+        });
+
+        setSurface(holder.getSurface());
     }
 
     public PlayerControl getPlayerControl() {
