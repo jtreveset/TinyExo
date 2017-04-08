@@ -16,6 +16,7 @@ package com.github.jtreveset.tinyexoplayer;
  * limitations under the License.
  */
 
+import android.content.Context;
 import android.media.MediaCodec.CryptoException;
 import android.os.Handler;
 import android.os.Looper;
@@ -59,7 +60,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * with one of a number of {@link RendererBuilder} classes to suit different use cases (e.g. DASH,
  * SmoothStreaming and so on).
  */
-public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
+public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
         HlsSampleSource.EventListener, ExtractorSampleSource.EventListener,
         SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
         MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
@@ -73,16 +74,16 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
         /**
          * Builds renderers for playback.
          *
-         * @param player The player for which renderers are being built. {@link DemoPlayer#onRenderers}
+         * @param player The player for which renderers are being built. {@link TinyExoPlayer#onRenderers}
          *     should be invoked once the renderers have been built. If building fails,
-         *     {@link DemoPlayer#onRenderersError} should be invoked.
+         *     {@link TinyExoPlayer#onRenderersError} should be invoked.
          */
-        void buildRenderers(DemoPlayer player);
+        void buildRenderers(TinyExoPlayer player);
         /**
          * Cancels the current build operation, if there is one. Else does nothing.
          * <p>
-         * A canceled build operation must not invoke {@link DemoPlayer#onRenderers} or
-         * {@link DemoPlayer#onRenderersError} on the player, which may have been released.
+         * A canceled build operation must not invoke {@link TinyExoPlayer#onRenderers} or
+         * {@link TinyExoPlayer#onRenderersError} on the player, which may have been released.
          */
         void cancel();
     }
@@ -166,7 +167,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     private static final int RENDERER_BUILDING_STATE_BUILDING = 2;
     private static final int RENDERER_BUILDING_STATE_BUILT = 3;
 
-    private final RendererBuilder rendererBuilder;
+    private RendererBuilder rendererBuilder;
     private final ExoPlayer player;
     private final PlayerControl playerControl;
     private final Handler mainHandler;
@@ -190,8 +191,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     private InternalErrorListener internalErrorListener;
     private InfoListener infoListener;
 
-    public DemoPlayer(RendererBuilder rendererBuilder) {
-        this.rendererBuilder = rendererBuilder;
+    private Context context;
+
+    public TinyExoPlayer(Context context) {
+        this.context = context;
+        this.rendererBuilder = null;
         player = ExoPlayer.Factory.newInstance(RENDERER_COUNT, 1000, 5000);
         player.addListener(this);
         playerControl = new PlayerControl(player);
@@ -201,6 +205,16 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
         rendererBuildingState = RENDERER_BUILDING_STATE_IDLE;
         // Disable text initially.
         player.setSelectedTrack(TYPE_TEXT, TRACK_DISABLED);
+    }
+
+    /*
+     * Tiny Exo methods
+     */
+    public void load(String resource) {
+        // As we only support DASH streams, build that renderer
+        String userAgent = Utils.buildUserAgent();
+        rendererBuilder = new DashRendererBuilder(context, userAgent, resource, null);
+        prepare();
     }
 
     public PlayerControl getPlayerControl() {
@@ -297,7 +311,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     /**
      * Invoked with the results from a {@link RendererBuilder}.
      *
-     * @param renderers Renderers indexed by {@link DemoPlayer} TYPE_* constants. An individual
+     * @param renderers Renderers indexed by {@link TinyExoPlayer} TYPE_* constants. An individual
      *     element may be null if there do not exist tracks of the corresponding type.
      * @param bandwidthMeter Provides an estimate of the currently available bandwidth. May be null.
      */

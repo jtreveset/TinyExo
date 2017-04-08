@@ -6,17 +6,15 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import com.github.jtreveset.tinyexoplayer.DashRendererBuilder;
-import com.github.jtreveset.tinyexoplayer.DemoPlayer;
+import com.github.jtreveset.tinyexoplayer.TinyExoPlayer;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
-import com.google.android.exoplayer.util.Util;
 
-public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback, DemoPlayer.Listener {
+public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback, TinyExoPlayer.Listener {
 
     private View shutterView;
     private AspectRatioFrameLayout videoFrame;
     private SurfaceView surfaceView;
-    private DemoPlayer player;
+    private TinyExoPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +44,10 @@ public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.C
 
     private void preparePlayer(boolean playWhenReady) {
         if (player == null) {
-            String userAgent = Util.getUserAgent(getApplicationContext(), "TinyExo");
-            String source = "http://dash.edgesuite.net/envivio/dashpr/clear/Manifest.mpd";
-            DemoPlayer.RendererBuilder rb = new DashRendererBuilder(this, userAgent, source, null);
-            player = new DemoPlayer(rb);
+            player = new TinyExoPlayer(this);
         }
-        player.prepare();
+        //player.prepare();
+        player.load("http://dash.edgesuite.net/envivio/dashpr/clear/Manifest.mpd");
 
         player.addListener(this);
         player.setSurface(surfaceView.getHolder().getSurface());
@@ -74,7 +70,7 @@ public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.C
 
     }
 
-    // DemoPlayer.Listener methods
+    // TinyExoPlayer.Listener methods
     @Override
     public void onStateChanged(boolean playWhenReady, int playbackState) {
 
