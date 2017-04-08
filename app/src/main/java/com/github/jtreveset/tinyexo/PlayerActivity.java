@@ -18,6 +18,10 @@ import java.util.List;
 
 import static com.github.jtreveset.tinyexo.SourceSelectionActivity.EXTRA_RESOURCE_URL;
 
+/**
+ * Activity that holds the player and presents a few UI options such as play/resume, pause
+ * and quality switching.
+ */
 public class PlayerActivity extends AppCompatActivity {
 
     // TinyExoPlayer instance

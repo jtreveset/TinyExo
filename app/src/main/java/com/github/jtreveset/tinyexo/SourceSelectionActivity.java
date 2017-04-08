@@ -12,6 +12,11 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity that just presents a ListView containing hard-coded resources.
+ * When one of these resources is tapped, a new {@link PlayerActivity} is created in order to
+ * perform the playback.
+ */
 public class SourceSelectionActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESOURCE_URL = "EXTRA_RESOURCE_URL";

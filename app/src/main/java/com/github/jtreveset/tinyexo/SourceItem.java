@@ -1,5 +1,8 @@
 package com.github.jtreveset.tinyexo;
 
+/**
+ * Container class that represents a playable asset
+ */
 public class SourceItem {
 
     private String name;
