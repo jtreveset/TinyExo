@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.MediaCodec.CryptoException;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -53,6 +54,7 @@ import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.PlayerControl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -196,6 +198,8 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     private Context context;
     private TinyExoPlayerLayout layout;
 
+    private final static String TAG = TinyExoPlayer.class.getSimpleName();
+
     public TinyExoPlayer(Context context) {
         this.context = context;
         this.rendererBuilder = null;
@@ -293,6 +297,40 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     public void pause() {
         if (getPlayerControl().canPause()) {
             getPlayerControl().pause();
+        }
+    }
+
+    /**
+     * Returns a List of {@link VideoQuality}s available for this video
+     * @return list with available video quality levels
+     */
+    public List<VideoQuality> getVideoQualityLevels() {
+        int tracks = getTrackCount(TYPE_VIDEO);
+
+        List<VideoQuality> levels = new ArrayList<>(tracks);
+
+        for (int i = 0; i < tracks;i++) {
+            MediaFormat format = player.getTrackFormat(TinyExoPlayer.TYPE_VIDEO, i);
+            levels.add(new VideoQuality(format.bitrate, format.adaptive));
+        }
+
+        return levels;
+    }
+
+    /**
+     * Sets the playback video quality.
+     * @param quality Quality to set. This is one of the values returned by {@link #getVideoQualityLevels()}
+     */
+    public void setSelectedVideoQualityLevel(VideoQuality quality) {
+        int tracks = getTrackCount(TYPE_VIDEO);
+        for (int i = 0; i < tracks;i++) {
+            MediaFormat format = player.getTrackFormat(TinyExoPlayer.TYPE_VIDEO, i);
+            if (quality.isAutomatic() && format.adaptive
+                    || quality.getBitrate() == format.bitrate) {
+                Log.d(TAG, "Setting video quality: " + i + " (" + quality + ")");
+                setSelectedTrack(TYPE_VIDEO, i);
+                break;
+            }
         }
     }
 
