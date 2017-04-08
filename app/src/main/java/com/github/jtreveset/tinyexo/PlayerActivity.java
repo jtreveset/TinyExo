@@ -29,13 +29,13 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         preparePlayer(true);
-        player.getPlayerControl().start();
+        player.play();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        player.getPlayerControl().pause();
+        player.pause();
     }
 
     private void preparePlayer(boolean playWhenReady) {

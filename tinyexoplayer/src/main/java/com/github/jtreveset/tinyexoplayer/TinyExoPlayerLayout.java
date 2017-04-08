@@ -11,7 +11,6 @@ import android.widget.FrameLayout;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.text.SubtitleLayout;
 
-
 /**
  * TinyExoPlayerLayout wraps the views needed by the Exoplayer.
  */

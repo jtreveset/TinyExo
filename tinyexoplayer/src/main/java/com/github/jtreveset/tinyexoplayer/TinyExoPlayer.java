@@ -280,6 +280,22 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
         setSurface(holder.getSurface());
     }
 
+    /**
+     * Plays (or resumes) playback
+     */
+    public void play() {
+        getPlayerControl().start();
+    }
+
+    /**
+     * Pauses playback
+     */
+    public void pause() {
+        if (getPlayerControl().canPause()) {
+            getPlayerControl().pause();
+        }
+    }
+
     public PlayerControl getPlayerControl() {
         return playerControl;
     }
