@@ -1,12 +1,10 @@
 package com.github.jtreveset.tinyexo;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -14,10 +12,10 @@ import android.widget.Button;
 import com.github.jtreveset.tinyexoplayer.TinyExoPlayer;
 import com.github.jtreveset.tinyexoplayer.TinyExoPlayerLayout;
 import com.github.jtreveset.tinyexoplayer.VideoQuality;
-import com.google.android.exoplayer.AspectRatioFrameLayout;
-import com.google.android.exoplayer.MediaFormat;
 
 import java.util.List;
+
+import static com.github.jtreveset.tinyexo.SourceSelectionActivity.EXTRA_RESOURCE_URL;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -103,7 +101,10 @@ public class PlayerActivity extends AppCompatActivity {
             player.setPlayerLayout(tinyExoplayerLayout);
         }
 
-        player.load("http://dash.edgesuite.net/envivio/dashpr/clear/Manifest.mpd");
+        Intent i =  getIntent();
+        String url = i.getStringExtra(EXTRA_RESOURCE_URL);
+
+        player.load(url);
         player.setPlayWhenReady(playWhenReady);
     }
 }
