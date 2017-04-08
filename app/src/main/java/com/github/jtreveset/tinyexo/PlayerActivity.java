@@ -7,26 +7,30 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import com.github.jtreveset.tinyexoplayer.TinyExoPlayer;
+import com.github.jtreveset.tinyexoplayer.TinyExoPlayerLayout;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 
 public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback, TinyExoPlayer.Listener {
 
-    private View shutterView;
-    private AspectRatioFrameLayout videoFrame;
-    private SurfaceView surfaceView;
+    //private View shutterView;
+    //private AspectRatioFrameLayout videoFrame;
+    //private SurfaceView surfaceView;
     private TinyExoPlayer player;
+
+    private TinyExoPlayerLayout tinyExoplayerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        shutterView = findViewById(R.id.shutter);
-        videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
-        surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        //shutterView = findViewById(R.id.shutter);
+        //videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+        //surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        //surfaceView.getHolder().addCallback(this);
 
-        surfaceView.getHolder().addCallback(this);
-
+        tinyExoplayerLayout = (TinyExoPlayerLayout) findViewById(R.id.tinyExoplayerLayout);
+        tinyExoplayerLayout.getSurfaceView().getHolder().addCallback(this);
     }
 
     @Override
@@ -45,12 +49,13 @@ public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.C
     private void preparePlayer(boolean playWhenReady) {
         if (player == null) {
             player = new TinyExoPlayer(this);
+            //player.setPlayerLayout(tinyExoplayerLayout);
         }
         //player.prepare();
         player.load("http://dash.edgesuite.net/envivio/dashpr/clear/Manifest.mpd");
 
         player.addListener(this);
-        player.setSurface(surfaceView.getHolder().getSurface());
+        player.setSurface(tinyExoplayerLayout.getSurfaceView().getHolder().getSurface());
         player.setPlayWhenReady(playWhenReady);
     }
 
@@ -89,7 +94,7 @@ public class PlayerActivity extends AppCompatActivity implements SurfaceHolder.C
         } else {
             ratio = (width * pixelWidthHeightRatio) / height;
         }
-        videoFrame.setAspectRatio(ratio);
-        shutterView.setVisibility(View.GONE);
+        tinyExoplayerLayout.getAspectRatioFrameLayout().setAspectRatio(ratio);
+        tinyExoplayerLayout.getShutter().setVisibility(View.GONE);
     }
 }
