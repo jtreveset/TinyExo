@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.github.jtreveset.tinyexoplayer.TinyExoPlayer;
 import com.github.jtreveset.tinyexoplayer.TinyExoPlayerLayout;
@@ -48,6 +49,7 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 player.play();
+                Toast.makeText(PlayerActivity.this, "Play", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -55,6 +57,7 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 player.pause();
+                Toast.makeText(PlayerActivity.this, "Pause", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -79,17 +82,27 @@ public class PlayerActivity extends AppCompatActivity {
                         // Pick selected quality level
                         VideoQuality quality = qualityArrayAdapter.getItem(which);
                         player.setSelectedVideoQualityLevel(quality);
+                        Toast.makeText(PlayerActivity.this, "Setting quality: " + quality,
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
                 alertBuilder.show();
             }
         });
+
+        Intent i =  getIntent();
+        String url = i.getStringExtra(EXTRA_RESOURCE_URL);
+
+        player = new TinyExoPlayer(this);
+        player.setPlayerLayout(tinyExoplayerLayout);
+        player.setUrl(url);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        preparePlayer();
+
+        player.prepare();
         if (wasPlaying) {
             player.play();
         }
@@ -98,20 +111,9 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
         // Save playing state
         wasPlaying = player.isPlaying();
         player.pause();
-    }
-
-    private void preparePlayer() {
-        if (player == null) {
-            player = new TinyExoPlayer(this);
-            player.setPlayerLayout(tinyExoplayerLayout);
-        }
-
-        Intent i =  getIntent();
-        String url = i.getStringExtra(EXTRA_RESOURCE_URL);
-
-        player.load(url);
     }
 }

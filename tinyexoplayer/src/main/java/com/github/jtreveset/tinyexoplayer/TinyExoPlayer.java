@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.DummyTrackRenderer;
@@ -197,6 +198,7 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
 
     private Context context;
     private TinyExoPlayerLayout layout;
+    private String resource;
 
     private final static String TAG = TinyExoPlayer.class.getSimpleName();
 
@@ -219,16 +221,15 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
      */
 
     /**
-     * Loads the resource by creating the corresponding RendererBuilder.
+     * Stores the resource url.
+     * This resource will be loaded in the {@link #prepare()} method.
      *
      * It only supports DASH streams
      * @param resource the resource to load
      */
-    public void load(String resource) {
+    public void setUrl(String resource) {
         // As we only support DASH streams, build that renderer
-        String userAgent = Utils.buildUserAgent();
-        rendererBuilder = new DashRendererBuilder(context, userAgent, resource, null);
-        prepare();
+        this.resource = resource;
     }
 
     /**
@@ -247,6 +248,7 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
 
                 @Override
                 public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                    layout.getShutter().setLayoutParams(new FrameLayout.LayoutParams(width, height));
                 }
 
                 @Override
@@ -262,6 +264,18 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
         addListener(new Listener() {
             @Override
             public void onStateChanged(boolean playWhenReady, int playbackState) {
+                switch (playbackState) {
+                    case STATE_PREPARING:
+                    case STATE_ENDED:
+                    case STATE_IDLE:
+                        layout.getShutter().setVisibility(View.VISIBLE);
+                        break;
+                    case STATE_READY:
+                    case STATE_BUFFERING:
+                    default:
+                        layout.getShutter().setVisibility(View.GONE);
+                        break;
+                }
             }
 
             @Override
@@ -422,6 +436,9 @@ public class TinyExoPlayer implements ExoPlayer.Listener, ChunkSampleSource.Even
     }
 
     public void prepare() {
+        String userAgent = Utils.buildUserAgent();
+        rendererBuilder = new DashRendererBuilder(context, userAgent, resource, null);
+
         if (rendererBuildingState == RENDERER_BUILDING_STATE_BUILT) {
             player.stop();
         }
